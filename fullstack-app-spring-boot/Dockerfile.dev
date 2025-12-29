@@ -14,7 +14,7 @@ RUN ./mvnw dependency:resolve
 COPY . .
 
 # Specify the port to be used
-EXPOSE 8082
+EXPOSE 8080
 
 # Start the app in development mode using the Maven wrapper
 CMD ["./mvnw", "spring-boot:run"]
