@@ -1,32 +1,23 @@
 name: Deploy VTI
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Choose what to deploy"
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
 
 jobs:
-  infra:
-    name: Deploy INFRA (MySQL + Redis)
-    runs-on: [self-hosted, Linux, X64]
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Ensure docker network exists
-        run: |
-          docker network inspect my_network >/dev/null 2>&1 \
-          || docker network create my_network
-
-      - name: Deploy infra
-        run: |
-          docker compose -f docker-compose.infra.yml up -d
 
   backend:
-    name: Deploy BACKEND (Spring Boot)
+    name: Deploy BACKEND 
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'backend' || github.event.inputs.target == 'all')
     runs-on: [self-hosted, Linux, X64]
-    needs: infra
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -36,9 +27,10 @@ jobs:
           docker compose -f docker-compose.backend.yml up -d --build
 
   frontend:
-    name: Deploy FRONTEND (React)
+    name: Deploy FRONTEND 
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'frontend' || github.event.inputs.target == 'all')
     runs-on: [self-hosted, Linux, X64]
-    needs: backend
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
