@@ -19,8 +19,21 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
+      - name: Force cleanup workspace (fix permission)
+        run: |
+          sudo rm -rf $GITHUB_WORKSPACE || true
+          mkdir -p $GITHUB_WORKSPACE
+          sudo chown -R ubuntu:ubuntu $GITHUB_WORKSPACE
+
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          clean: false   
+
+      - name: Ensure docker network exists
+        run: |
+          docker network inspect my_network >/dev/null 2>&1 \
+          || docker network create my_network
 
       - name: Build & deploy backend
         run: |
@@ -32,8 +45,21 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
+      - name: Force cleanup workspace (fix permission)
+        run: |
+          sudo rm -rf $GITHUB_WORKSPACE || true
+          mkdir -p $GITHUB_WORKSPACE
+          sudo chown -R ubuntu:ubuntu $GITHUB_WORKSPACE
+
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          clean: false  
+
+      - name: Ensure docker network exists
+        run: |
+          docker network inspect my_network >/dev/null 2>&1 \
+          || docker network create my_network
 
       - name: Build & deploy frontend
         run: |
