@@ -15,7 +15,7 @@ jobs:
   backend:
     name: Deploy BACKEND
     if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'backend'
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: self-hosted
 
     steps:
       - name: Checkout source
@@ -28,7 +28,7 @@ jobs:
   frontend:
     name: Deploy FRONTEND
     if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'frontend'
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: self-hosted
 
     steps:
       - name: Checkout source
