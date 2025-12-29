@@ -13,8 +13,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     networks:
-      - fullstack-net
+      - my_network
 
 networks:
-  fullstack-net:
+  my_network:
     external: true
