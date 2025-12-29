@@ -3,19 +3,20 @@ name: Deploy VTI
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: "Choose what to deploy"
-        required: true
-        type: choice
-        options:
-          - backend
-          - frontend
+      deploy_backend:
+        description: "Deploy BACKEND"
+        type: boolean
+        default: false
+      deploy_frontend:
+        description: "Deploy FRONTEND"
+        type: boolean
+        default: false
 
 jobs:
   backend:
     name: Deploy BACKEND
-    if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'backend'
-    runs-on: self-hosted
+    if: ${{ inputs.deploy_backend }}
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout source
@@ -27,8 +28,8 @@ jobs:
 
   frontend:
     name: Deploy FRONTEND
-    if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'frontend'
-    runs-on: self-hosted
+    if: ${{ inputs.deploy_frontend }}
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout source
