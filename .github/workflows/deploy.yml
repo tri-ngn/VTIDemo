@@ -1,54 +1,48 @@
-name: Custom deployment
+name: Deploy VTI
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
+  infra:
+    name: Deploy INFRA (MySQL + Redis)
+    runs-on: [self-hosted, Linux, X64]
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-    - name: Configure SSH
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+      - name: Ensure docker network exists
+        run: |
+          docker network inspect my_network >/dev/null 2>&1 \
+          || docker network create my_network
 
-    - name: Deploy to server
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          set -e
-      
-          # Navigate to home directory
-          cd /home
-      
-          # Change it to your custom link if necessary
-          REPO_URL="https://github.com/rogershi-dev/fullstack-react-springboot-docker.git"
-          REPO_DIR="fullstack-react-springboot-docker"
-      
-          # Check if the repository directory exists
-          if [ -d "$REPO_DIR" ]; then
-            echo "Repository already exists. Pulling latest changes."
-            cd "$REPO_DIR"
-            git pull origin main
-          else
-            echo "Cloning repository."
-            git clone "$REPO_URL" "$REPO_DIR"
-            cd "$REPO_DIR"
-          fi
-      
-          # Run the deployment
-          docker compose -f docker-compose.prod.yml down
-          docker compose -f docker-compose.prod.yml up --build -d
-        EOF
+      - name: Deploy infra
+        run: |
+          docker compose -f docker-compose.infra.yml up -d
 
+  backend:
+    name: Deploy BACKEND (Spring Boot)
+    runs-on: [self-hosted, Linux, X64]
+    needs: infra
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
+      - name: Build & deploy backend
+        run: |
+          docker compose -f docker-compose.backend.yml up -d --build
+
+  frontend:
+    name: Deploy FRONTEND (React)
+    runs-on: [self-hosted, Linux, X64]
+    needs: backend
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build & deploy frontend
+        run: |
+          docker compose -f docker-compose.frontend.yml up -d --build
