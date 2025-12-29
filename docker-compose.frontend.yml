@@ -7,7 +7,7 @@ services:
       context: ./fullstack-app-react
       dockerfile: Dockerfile.dev
       args:
-        REACT_APP_BACKEND_URL: "http://fullstack-app-backend:8082"  
+        REACT_APP_BACKEND_URL: "https://tringuyen.be.do2506.click"  
     ports:
       - "3000:3000"
     environment:
