@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: fullstack-app-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: My5tr0n9My50LPa55word
+      MYSQL_DATABASE: fullstack-app-database
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - my_network
+
+  redis:
+    image: redis:7.4
+    container_name: fullstack-app-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "My5tr0n9R3d15Pa55word"]
+    networks:
+      - my_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  my_network:
+    external: true
