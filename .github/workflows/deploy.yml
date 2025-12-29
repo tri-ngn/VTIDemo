@@ -12,10 +12,9 @@ on:
           - frontend
 
 jobs:
-
   backend:
-    name: Deploy BACKEND 
-    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'backend' || github.event.inputs.target == 'all')
+    name: Deploy BACKEND
+    if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'backend'
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -27,8 +26,8 @@ jobs:
           docker compose -f docker-compose.backend.yml up -d --build
 
   frontend:
-    name: Deploy FRONTEND 
-    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'frontend' || github.event.inputs.target == 'all')
+    name: Deploy FRONTEND
+    if: github.ref == 'refs/heads/main' && github.event.inputs.target == 'frontend'
     runs-on: [self-hosted, Linux, X64]
 
     steps:
